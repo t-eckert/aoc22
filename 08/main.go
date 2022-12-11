@@ -19,9 +19,9 @@ func main() {
 	fmt.Println(terrain)
 
 	calculateVisibility(terrain)
-	total := countVisibleTrees(terrain)
+	fmt.Printf("Part 1: There are %d visible trees.\n", countVisibleTrees(terrain))
 
-	fmt.Printf("Part 1: There are %d visible trees.", total)
+	fmt.Printf("Part 2: The highest senic score is %d.\n", highestSenicScore(terrain))
 }
 
 type Exposure = int
@@ -127,7 +127,6 @@ func (t *Terrain) Below(x, y int) []Tree {
 }
 
 func calculateVisibility(t *Terrain) {
-	// Mark all of the edge trees as visible
 	for x := 0; x < t.Width(); x++ {
 		for y := 0; y < t.Height(); y++ {
 			if x == 0 || x == t.Width()-1 || y == 0 || y == t.Height()-1 {
@@ -164,4 +163,31 @@ func countVisibleTrees(t *Terrain) int {
 	}
 
 	return count
+}
+
+func highestSenicScore(t *Terrain) int {
+	top := 0
+	for x := 0; x < t.Width(); x++ {
+		for y := 0; y < t.Height(); y++ {
+			height := t.Tree(x, y).Height
+			score := senicScore(t.LeftOf(x, y), height) * senicScore(t.Above(x, y), height) * senicScore(t.RightOf(x, y), height) * senicScore(t.Below(x, y), height)
+			if top <= score {
+				top = score
+			}
+		}
+	}
+
+	return top
+}
+
+func senicScore(trees []Tree, height int) int {
+	score := 0
+	for _, tree := range trees {
+		score++
+		if height <= tree.Height {
+			return score
+		}
+	}
+
+	return score
 }
